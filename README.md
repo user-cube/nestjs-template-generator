@@ -22,6 +22,14 @@ $ echo 'PATH="$HOME/bin:$PATH"' >> ~/.zshrc
 $ source ~/.zshrc
 ```
 
+Or execute `install.sh` script:
+
+```shell
+$ sh install.sh -p
+```
+
+If you want just to update the script the same command without `-p` option.
+
 ## Usage
 
 To use this script:
