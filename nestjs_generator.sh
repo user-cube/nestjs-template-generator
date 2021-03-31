@@ -46,8 +46,8 @@ async function bootstrap() {
   const logger: LoggerService = new LoggerService();
 
   app.enableCors();
-  logger.verbose(\`Database URI => \${configService.get('database.uri')}\`)
-  logger.verbose(\`Application listening on port => \${configService.get('port')}\`)
+  logger.verbose(\`Database URI => \${configService.get('database.uri')}\`);
+  logger.verbose(\`Application listening on port => \${configService.get('port')}\`);
   await app.listen(configService.get('port'));
 }
 bootstrap();" > src/main.ts
