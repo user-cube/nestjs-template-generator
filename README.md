@@ -29,7 +29,8 @@ To use this script:
 ```shell
 $ sh nestjs_generator.sh -gA my-app # Generate App ready to git commit
 $ sh nestjs_generator.sh -gM my-app # Generate App with Mongoose ready to git commit
-$ $ sh nestjs_generator.sh -d mysql -gT my-app # Generate App with TypeORM (default PostgreSQL, use -d to change) ready to git commit
+$ sh nestjs_generator.sh -d mysql -gT my-app # Generate App with TypeORM (default PostgreSQL, use -d to change) ready to git commit
+$ sh nestjs_generator.sh -gS my-app # Generate App with Microservices enabled cready to git commit
 ```
 
 If you want keep the files into the nest generated folder use the commands above without `g`.

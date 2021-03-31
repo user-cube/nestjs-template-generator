@@ -202,6 +202,30 @@ function generateProject(){
     
 }
 
+function generateMicroservice(){
+    echo "Creating Microservice";
+    npm i --save @nestjs/microservices
+    echo "import { NestFactory } from '@nestjs/core';
+import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+  });
+
+  await app.startAllMicroservicesAsync();
+}
+
+bootstrap();
+" > src/main.ts
+    echo "Microservice created.";
+}
+
 function checkInstallation(){
     if ! command -v npm &>/dev/null
     then
@@ -236,14 +260,16 @@ function displayHelp()
     echo "-d  Define SQL Database Type"
     echo "-T  Generate new Project with TypeORM and all configurations";
     echo "-gT Generate new Project with TypeORM and all configurations and export to git structure";
-	exit 1;
+    echo "-S  Generate new Project using Microservices"
+	echo "-gS  Generate new Project using Microservices"
+    exit 1;
 }
 
 checkInstallation
 relationalDatabaseType="postgres"
 forGit=false
 
-while getopts "vihlcmagA:M:T:" arg; do
+while getopts "vihlcmagA:M:T:S:" arg; do
     case $arg in
         i)
             installNestJS
@@ -288,6 +314,15 @@ while getopts "vihlcmagA:M:T:" arg; do
             generateLogger
             generateAppModuleTypeOrm
             generateMainDatabase
+            extractFromFolder
+            ;;
+        S)
+            projectName=${OPTARG}
+            generateProject
+            generateConfig
+            generateLogger
+            generateAppModule
+            generateMicroservice
             extractFromFolder
             ;;
         d)
