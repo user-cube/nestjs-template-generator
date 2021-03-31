@@ -32,6 +32,28 @@ function generateConfig(){
     echo "Configuration Service Setup done."
 }
 
+function generateMainMongoose(){
+    echo "Generating main.ts with Mongoose";
+    echo "import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { LoggerService } from './logger/logger.service';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const configService: ConfigService = app.get(ConfigService);
+  const logger: LoggerService = new LoggerService();
+
+  app.enableCors();
+  logger.verbose(\`Mongoose URI => \${configService.get('database.uri')}\`)
+  logger.verbose(\`Application listening on port => \${configService.get('port')}\`)
+  await app.listen(configService.get('port'));
+}
+bootstrap();" > src/main.ts
+    echo "File main.ts generated."
+}
+
+
 function generateMain(){
     echo "Generating main.ts";
     echo "import { ConfigService } from '@nestjs/config';
@@ -51,6 +73,37 @@ async function bootstrap() {
 }
 bootstrap();" > src/main.ts
     echo "File main.ts generated."
+}
+
+function generateAppModuleMongoose(){
+    echo "Geneationg app.module.ts with Mongoose dependency.";
+    npm i --save @nestjs/mongoose mongoose
+    echo "import { LoggerModule } from './logger/logger.module';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration from './config/configuration';
+
+@Module({
+  imports: [
+    LoggerModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: \`\${configService.get('database.uri')}\`,
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [],
+  providers: [],
+})
+export class AppModule {}" > src/app.module.ts
+    echo "File app.module.ts generated."
 }
 
 function generateAppModule(){
@@ -77,7 +130,7 @@ export class AppModule {}" > src/app.module.ts
 
 function generateLogger(){
     echo "Setup logger Service.";
-    nest g module logger;
+    nest g module logger --no-spec;
     echo "import { Module } from '@nestjs/common';
 
 @Module({
@@ -87,7 +140,7 @@ function generateLogger(){
   exports: [LoggerService],
 })
 export class LoggerModule {}" > src/logger/logger.module.ts
-    nest g service logger;
+    nest g service logger --no-spec;
     echo "import { Injectable, Scope, Logger } from '@nestjs/common';
 
 @Injectable({ scope: Scope.TRANSIENT })
@@ -103,6 +156,10 @@ function generateProject(){
     fi
     nest new $projectName;
     cd $projectName;
+    rm src/app.controller.spec.ts;
+    rm src/app.controller.ts;
+    rm src/app.service.ts
+    
 }
 
 function checkInstallation(){
@@ -132,15 +189,17 @@ function displayHelp()
     echo "-c Generate Configurarion";
     echo "-m Generate main.ts file";
     echo "-a Generate App Module";
-    echo "-g Extract from folder to git structure";
+    echo "-M Install with Mongoose Configurations"
+    echo "-gM Install with Mongoose Configurations and export to git structure";
     echo "-A Generate new Project and all configurations";
+    echo "-gA Generate new Project and all configurations and export to git structure";
 	exit 1;
 }
 
 checkInstallation
 forGit=false
 
-while getopts "i:h:l:c:m:a:gA:" arg; do
+while getopts "vihlcmagA:M:" arg; do
     case $arg in
         i)
             installNestJS
@@ -160,6 +219,15 @@ while getopts "i:h:l:c:m:a:gA:" arg; do
         g)
             forGit=true
             ;;
+        M)
+            projectName=${OPTARG}
+            generateProject
+            generateConfig
+            generateLogger
+            generateAppModuleMongoose
+            generateMainMongoose
+            extractFromFolder
+            ;;
         A) 
             projectName=${OPTARG}
             generateProject
@@ -168,13 +236,15 @@ while getopts "i:h:l:c:m:a:gA:" arg; do
             generateAppModule
             generateMain
             extractFromFolder
-            ;;
+            ;;    
         h)
             displayHelp
             ;;
+        v)
+            echo "0.0.2";
+            ;;
         \?)
-            echo "Invalid option: -$OPTARG" >&2
-            displayHelp
+            exit 0;
             ;;
     esac
 done
