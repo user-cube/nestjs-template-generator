@@ -224,15 +224,18 @@ function checkInstallation(){
 function displayHelp()
 {
 	#Help function
-	echo "-i Install NestJS";
-    echo "-l Generate logger";
-    echo "-c Generate Configurarion";
-    echo "-m Generate main.ts file";
-    echo "-a Generate App Module";
-    echo "-M Install with Mongoose Configurations"
+	echo "-i  Install NestJS";
+    echo "-l  Generate logger";
+    echo "-c  Generate Configurarion";
+    echo "-m  Generate file main.ts";
+    echo "-a  Generate App Module";
+    echo "-M  Install with Mongoose Configurations"
     echo "-gM Install with Mongoose Configurations and export to git structure";
-    echo "-A Generate new Project and all configurations";
+    echo "-A  Generate new Project and all configurations";
     echo "-gA Generate new Project and all configurations and export to git structure";
+    echo "-d  Define SQL Database Type"
+    echo "-T  Generate new Project with TypeORM and all configurations";
+    echo "-gT Generate new Project with TypeORM and all configurations and export to git structure";
 	exit 1;
 }
 
