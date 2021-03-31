@@ -332,7 +332,7 @@ while getopts "vihlcmagA:M:T:S:" arg; do
             displayHelp
             ;;
         v)
-            echo "0.0.3";
+            echo "0.0.4";
             ;;
         \?)
             exit 0;
