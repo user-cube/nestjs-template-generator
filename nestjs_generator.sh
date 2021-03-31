@@ -32,8 +32,9 @@ function generateConfig(){
     echo "Configuration Service Setup done."
 }
 
-function generateMainMongoose(){
-    echo "Generating main.ts with Mongoose";
+
+function generateMainDatabase(){
+    echo "Generating main.ts with Database URI";
     echo "import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -45,7 +46,7 @@ async function bootstrap() {
   const logger: LoggerService = new LoggerService();
 
   app.enableCors();
-  logger.verbose(\`Mongoose URI => \${configService.get('database.uri')}\`)
+  logger.verbose(\`Database URI => \${configService.get('database.uri')}\`)
   logger.verbose(\`Application listening on port => \${configService.get('port')}\`)
   await app.listen(configService.get('port'));
 }
@@ -73,6 +74,45 @@ async function bootstrap() {
 }
 bootstrap();" > src/main.ts
     echo "File main.ts generated."
+}
+
+function generateAppModuleTypeOrm(){
+    echo "Geneationg app.module.ts with TypeOrm dependency.";
+    npm i --save @nestjs/typeorm typeorm
+    if [ "$relationalDatabaseType" = "postgres" ] ; then
+        echo "Installing PostgreSQL";
+        npm i --save pg
+    elif [ "$relationalDatabaseType" = "mysql" ] ; then
+        echo "Installing MySQL";
+        npm i --save mysql2
+    fi
+    echo "import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration from './config/configuration';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: '$relationalDatabaseType',
+        url: configService.get('database.uri'),
+        entities: [],
+        synchronize: true,
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [],
+  providers: [],
+})
+export class AppModule {}" > src/app.module.ts
+    echo "File app.module.ts generated.";
 }
 
 function generateAppModuleMongoose(){
@@ -103,7 +143,7 @@ import configuration from './config/configuration';
   providers: [],
 })
 export class AppModule {}" > src/app.module.ts
-    echo "File app.module.ts generated."
+    echo "File app.module.ts generated.";
 }
 
 function generateAppModule(){
@@ -197,9 +237,10 @@ function displayHelp()
 }
 
 checkInstallation
+relationalDatabaseType="postgres"
 forGit=false
 
-while getopts "vihlcmagA:M:" arg; do
+while getopts "vihlcmagA:M:T:" arg; do
     case $arg in
         i)
             installNestJS
@@ -225,7 +266,7 @@ while getopts "vihlcmagA:M:" arg; do
             generateConfig
             generateLogger
             generateAppModuleMongoose
-            generateMainMongoose
+            generateMainDatabase
             extractFromFolder
             ;;
         A) 
@@ -236,12 +277,24 @@ while getopts "vihlcmagA:M:" arg; do
             generateAppModule
             generateMain
             extractFromFolder
-            ;;    
+            ;;
+        T)
+            projectName=${OPTARG}
+            generateProject
+            generateConfig
+            generateLogger
+            generateAppModuleTypeOrm
+            generateMainDatabase
+            extractFromFolder
+            ;;
+        d)
+            relationalDatabaseType=${OPTARG}
+            ;;
         h)
             displayHelp
             ;;
         v)
-            echo "0.0.2";
+            echo "0.0.3";
             ;;
         \?)
             exit 0;
