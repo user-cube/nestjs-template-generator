@@ -10,6 +10,13 @@ To use only as script just put the `nestjs_generator.sh` on the folder you want 
 $ sh nestjs_generator.sh -gA my-app
 ```
 
+If you are using Linux and you are getting error with the command above try:
+
+```shell
+$ chmod +x nestjs_generator.sh
+$ ./nestjs_generator.sh -gA my-app
+```
+
 ## Use as system tool
 
 To use this script as a system tool we need to add our script to PATH.
@@ -25,7 +32,7 @@ $ source ~/.zshrc
 Or execute `install.sh` script:
 
 ```shell
-$ sh install.sh -p
+$ sh install.sh -p # In case of error use the commands mentioned above for Linux
 ```
 
 If you want just to update the script the same command without `-p` option.
