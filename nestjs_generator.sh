@@ -194,6 +194,7 @@ function generateProject(){
         echo "No given project name";
         exit 0;
     fi
+    projectName="${projectName/_/-}"
     nest new $projectName;
     cd $projectName;
     rm src/app.controller.spec.ts;
